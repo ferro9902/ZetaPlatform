@@ -1,4 +1,4 @@
-# Platform Zeta - Aruba ![arubapec](mdImgs/image.png)
+# Platform Zeta - Aruba <img src="mdImgs/arubapec.png" alt="arubapec" width="150" align="right"/>
 
 ## Introduction
 
@@ -11,28 +11,29 @@ This project is divided in three separate sections, each developed in its separa
 
 ## Contextualization
 
-The Platform Zeta is a cloud-native system, designed according to a microservices architecture and orchestrated via Kubernetes, to be built entirely on-premise at Aruba's data centers[cite: 6]. The final goal is to centralize the entire ecosystem of Aruba products into a single portal, while simultaneously enabling new value-added services delivered directly from the platform.
+The Platform Zeta is a cloud-native system, designed according to a microservices architecture and orchestrated via Kubernetes, to be built entirely on-premise at Aruba's data centers. The final goal is to centralize the entire ecosystem of Aruba products into a single portal, while simultaneously enabling new value-added services delivered directly from the platform.
 
 ## Business Objectives
 
 From a business requirements perspective, the platform must allow Aruba customers to:
 
 * Manage and integrate already purchased services (PEC, digital signature, preservation, etc.) within a single portal.
-* Securely historicize access keys/tokens.
 * Historicize the documents associated with these services.
 * Upload documents directly into the portal for quick subsequent actions (e.g., signature, PEC sending, preservation).
-* Extract value-added information from documents, including semantic information[cite: 11].
+* Extract value-added information from documents, including semantic information.
 * If semantic indexing is activated , enable user-agent (chat) interactions to interrogate both historicized documents and those used only operationally.
 
 ## Technical Stack & Constraints
 
 The system must be designed considering specific functional and dimensional constraints:
 
-* **Frameworks & Tools:** The solution must be implemented using Spring Boot for application development and Docker for packaging services[cite: 61].
-* **Integrations:** Integration with Aruba systems (PEC, signature, preservation) will occur via REST APIs with OAuth2 compliant authentication[cite: 18].
-* **Data Volume:** The platform must handle ~2 million integrable PEC mailboxes, a volume of over 5 million messages managed per day, and ~50 GB of documents sent to preservation per day[cite: 39].
-* **Fundamental Constraint:** The solution must be designed as totally on-premise. The use of external cloud providers or third-party AI services is not permitted[cite: 49].
+* **Frameworks & Tools:** The solution must be implemented using Spring Boot for application development and Docker for packaging services.
+* **Integrations:** Integration with Aruba systems (PEC, signature, preservation) will occur via REST APIs with OAuth2 compliant authentication.
+* **Data Volume:** The platform must handle ~2 million integrable PEC mailboxes, a volume of over 5 million messages managed per day, and ~50 GB of documents sent to preservation per day.
+* **Fundamental Constraint:** The solution must be designed as totally on-premise. The use of external cloud providers or third-party AI services is not permitted.
 
 ## Assumptions & Limitations
 
 This project implementation revolves around these assumptions:
+
+* Out of the 5mln request described in the requirements only 5% will directly target the document ingestion pipeline and another 5% wil target the chat feature directly
