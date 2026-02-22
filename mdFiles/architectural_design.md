@@ -31,7 +31,7 @@ The architectural design must consider the following constraints:
 
 ## System Architecture
 
-<img style="float: right; background-color: gray; border-radius: 7px;"  width="50%"  src="../mdImgs/Zeta.drawio.png">
+<img style="float: right; background-color: gray; border-radius: 7px; max-width: 50%;"  src="../mdImgs/Zeta.drawio.png">
 The overall system Architecture is to be implemented based on the shown schematic. All of the services Within this application will be installed as kubernetes pods while providing the specific resources they require to function correctly.
 
 the Zeta Platform consists of several core microservices and infrastructure components:
