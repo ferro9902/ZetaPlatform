@@ -55,15 +55,15 @@ The Zeta Platform consists of several core microservices and infrastructure comp
 * **AI Engine Components:**
   * **Langflow:** Manages and orchestrates the AI workflows.
   * **Milvus:** Vector database used for storing semantic embeddings.
-  * **Ollama (Node Pool A):** Runs on time-sliced GPU instances for local model execution.
-  * **Hugging Face TEI (Node Pool B):** Runs on full GPU instances for Text Embeddings Inference.
+  * **vLLM:** Runs on GPU accelerated kubernetes nodes for local model execution.
+  * **Hugging Face TEI:** Acquires GPU resources from a shared pool with vLLM  for Text Embeddings Inference.
 
 ### Interaction Modes Between Microservices
 
 The communication between the different components utilizes a suite of different protocols depending on the type of communication link to be built between them:
 
 * **gRPC (Green Lines):** Used for fast, internal synchronous communication between the BFF Service and the various backend microservices. In the schematic, for sake of minimizing clutter, it is shown as a Bus. In reality gRPC will provide a direct link between services with a fully connected topology.
-* **REST (White Lines):** Used for external client connections to the BFF, API integration with external Aruba services (PEC, SIGN, CONSERVATION), and communication with AI workflow components like Langflow and Ollama.
+* **REST (White Lines):** Used for external client connections to the BFF, API integration with external Aruba services (PEC, SIGN, CONSERVATION), and communication with AI workflow components like Langflow and vLLM.
 * **SQL (Red Lines):** Represents the direct database connections from the backend microservices to their respective PostgreSQL database instances.
 * **AMQP (Orange Lines):** Utilized for asynchronous messaging via RabbitMQ, allowing services like DOCs Management, CONSERVATION integration, and AI Integration to publish and consume events reliably.
 
@@ -72,7 +72,7 @@ The communication between the different components utilizes a suite of different
 To handle the constraints of managing over 5 million messages per day and 50 GB of daily preserved documents, the Kubernetes environment must leverage robust autoscaling:
 
 * **Horizontal Pod Autoscaler (HPA):** Will be configured for stateless microservices (e.g., BFF, PEC Integration, and DOCs Management). HPA will automatically scale the number of pods up or down based on standard metrics like CPU and Memory utilization. Additionally, custom metrics from RabbitMQ (e.g., queue depth) will be utilized to asynchronously scale worker pods that process heavy document workloads.
-* **Node Autoscaling & Resource Pools:** While the environment is strictly on-premise, the architecture relies on specific Node Pools (A for time-sliced GPUs, B for full GPUs) to ensure the AI components (Ollama, Hugging Face TEI) have the necessary hardware accelerators under high demand without starving general application pods.
+* **Node Autoscaling:** While the environment is strictly on-premise, the architecture relies on specific GPU Resources Pools to ensure the AI components (vLLM, Hugging Face TEI) have the necessary hardware accelerators under high demand without starving general application pods.
 
 ### Storage infrastructure scalability
 
@@ -101,7 +101,7 @@ OAuth2 tokens (Access Tokens and Refresh Tokens) must never be saved in plaintex
 
 #### Secure Key Management (Kubernetes Secrets)
 
-To encrypt and decrypt tokens, the Spring Boot application requires a "Master Key". This key must never be hardcoded in the source code or in `application.yml` files.
+To encrypt and decrypt tokens, the Spring Boot application requires a "Master Key". This key is not to be hardcoded in the source code or in `application.yml` files.
 
 * Because the system is orchestrated via Kubernetes, the Master Key will be stored as a Kubernetes Secret.
 * This Secret is then mounted into the `Authentication and ID Service` Pod as an environment variable, allowing Spring Boot to access it securely at runtime.
@@ -112,14 +112,14 @@ Within the dedicated PostgreSQL database for the authentication service, the tok
 
 * `id` (UUID)
 * `user_id` (Reference to the owning user)
-* `service_type` (Enum: PEC, SIGN, CONSERV)
+* `service_type` (Enum: PEC, SIGN, CONSERVATION)
 * `encrypted_access_token` (ciphered_text)
 * `encrypted_refresh_token` (ciphered_text)
 * `token_expires_at` (Timestamp to manage automatic renewal)
 
 #### Operational Flow Between Microservices
 
-The components interact securely when an external service is invoked:
+The components interact securely when an external service is invoked. E.g.:
 
 1. The `PEC Integration Service` receives an event (e.g., from RabbitMQ) instructing it to send a PEC message on behalf of a user.
 2. Before making the REST API call to Aruba, the `PEC Integration Service` makes an internal synchronous request (via gRPC) to the `Authentication and ID Service` requesting the PEC token for that specific user.

@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  aruba-api-mock:
+    image: wiremock/wiremock:latest
+    container_name: aruba-api-mock
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./stubs:/home/wiremock
+    command: ["--global-response-templating", "--verbose"]

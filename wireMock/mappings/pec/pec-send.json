@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/v1/pec/messages",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer dummy_jwt_token_12345"
+      },
+      "Content-Type": {
+        "contains": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "ACCEPTED",
+      "messageId": "mocked-pec-id-9876",
+      "timestamp": "{{now}}"
+    }
+  }
+}

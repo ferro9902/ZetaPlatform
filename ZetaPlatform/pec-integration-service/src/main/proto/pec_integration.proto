@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package aruba.zeta.pec.v1;
+
+option java_multiple_files = true;
+option java_package = "com.aruba.zeta.pec.grpc";
+option java_outer_classname = "PecIntegrationProto";
+
+import "google/protobuf/timestamp.proto";
+
+// ----------------------------------------
+// Service Definition
+// ----------------------------------------
+
+service PecIntegrationService {
+  rpc GetMailboxes (GetMailboxesRequest) returns (GetMailboxesResponse);
+  rpc GetMessages (GetMessagesRequest) returns (GetMessagesResponse);
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse);
+}
+
+// ----------------------------------------
+// Enumerations
+// ----------------------------------------
+
+enum MailboxStatus {
+  MAILBOX_STATUS_UNSPECIFIED = 0;
+  MAILBOX_STATUS_ACTIVE = 1;
+  MAILBOX_STATUS_INACTIVE = 2;
+  MAILBOX_STATUS_SUSPENDED = 3;
+}
+
+enum MessageStatus {
+  MESSAGE_STATUS_UNSPECIFIED = 0;
+  MESSAGE_STATUS_ACCEPTED = 1;
+  MESSAGE_STATUS_DELIVERED = 2;
+  MESSAGE_STATUS_FAILED = 3;
+  MESSAGE_STATUS_SENT = 4;
+}
+
+// ----------------------------------------
+// Data Structures
+// ----------------------------------------
+
+message Mailbox {
+  string id = 1;
+  string user_id = 2;
+  string pec_address = 3;
+  MailboxStatus status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message AttachmentRef {
+  string document_id = 1;
+  string file_name = 2;
+}
+
+message PecMessage {
+  string id = 1;
+  string mailbox_id = 2;
+  string external_message_id = 3;
+  string sender_address = 4;
+  string recipient_address = 5;
+  string subject = 6;
+  MessageStatus status = 7;
+  google.protobuf.Timestamp message_timestamp = 8;
+  repeated AttachmentRef attachments = 9;
+}
+
+// ----------------------------------------
+// Request & Response Messages
+// ----------------------------------------
+
+message GetMailboxesRequest {
+  string user_id = 1;
+}
+
+message GetMailboxesResponse {
+  repeated Mailbox mailboxes = 1;
+}
+
+message GetMessagesRequest {
+  string mailbox_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  
+  // Optional filters
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+}
+
+message GetMessagesResponse {
+  repeated PecMessage messages = 1;
+  string next_page_token = 2;
+}
+
+message SendMessageRequest {
+  string mailbox_id = 1;
+  string recipient_address = 2;
+  string subject = 3;
+  string body_text = 4;
+  repeated string document_ids = 5;
+}
+
+message SendMessageResponse {
+  string message_id = 1;
+  MessageStatus current_status = 2;
+}

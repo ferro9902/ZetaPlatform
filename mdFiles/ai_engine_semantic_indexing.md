@@ -20,8 +20,8 @@ To fulfill the requirement of semantic indexing and enabling user-agent interact
 
 The technology stack is entirely self-hosted and open-source and relies on the following services:
 
-* **LLM Engine:** Ollama, running locally on the Kubernetes cluster. The pipeline utilizes the `qwen3:14b-q4_K_M` model to power the agent's reasoning and conversational capabilities.
-* **Embeddings:** Hugging Face Text Embeddings Inference (TEI) utilizing the `jina-embeddings-v5-text-small` model. This will leverage the same GPU accelerated kubernetes nodes as Ollama.
+* **LLM Engine:** vLLM, running locally on the Kubernetes cluster. The pipeline utilizes the `qwen3:14b-q4_K_M` model to power the agent's reasoning and conversational capabilities.
+* **Embeddings:** Hugging Face Text Embeddings Inference (TEI) utilizing the `jina-embeddings-v5-text-small` model. This will leverage the same GPU accelerated kubernetes nodes as vLLM.
 * **Vector Database:** Milvus, deployed as part of the kubernetes cluster (without GPU resources assignment), serves as the highly scalable vector store for document embeddings.
 
 ### Architectural Schema (On-Premise Constraints)
@@ -55,7 +55,7 @@ When a user interrogates their documents (both historicized and operational), th
 2. **Vector Retrieval:** The user's query is embedded via the local HuggingFace embeddings node. This vector is sent to Milvus, which performs a similarity search against the user's specific indexed documents, retrieving the top matching results.
 3. **Data Parsing:** A `Parser` node takes the raw output from Milvus and formats the extracted document chunks into a clean, readable text string.
 4. **Prompt Construction:** The `Prompt Template` combines the retrieved document context, the user's original question, and the current date/time (fetched via a utility node configured for `Europe/Rome`).
-5. **LLM Generation:** The constructed prompt is sent to the local Ollama `Agent` node. The LLM processes the context and formulates a grounded response. The agent is additionally equipped with a `Calculator` tool to perform arithmetic operations if the query requires it.
+5. **LLM Generation:** The constructed prompt is sent to the local vLLM `Agent` node. The LLM processes the context and formulates a grounded response. The agent is additionally equipped with a `Calculator` tool to perform arithmetic operations if the query requires it.
 6. **Output:** The synthesized answer is returned to the user via the `Chat Output` node, completing the interaction loop.
 
 The Current Date and Calculator nodes are added to the flow with the sole purpose of providing the LLM all information to make informed decisions and provide accurate answers.
@@ -71,11 +71,8 @@ We will work under the following assumptions:
 * **Total Platform Volume:** ~5,000,000 messages/day.
 * **Target Adoption Rate:** 5% (resulting in 250,000 Chat requests and 250,000 Ingestion requests per day).
 * **Hardware Unit:** NVIDIA RTX Pro 6000 (96GB VRAM).
-* **Virtualization Strategy:**
-  * **Chat Pool (Ollama):** 6-way time-sharing per GPU (~16GB VRAM per Pod).
-  * **Ingestion Pool (HuggingFace):** Dedicated GPU (1 Pod per GPU) leveraging concurrent requests capability of Hugging Face TEI.
 * **Models:**
-  * **Chat:** `qwen3:14b-q4_K_M` (~80 tokens/sec throughput).
+  * **Chat:** `qwen3:14b-q4_K_M` (~1,500 tokens/sec throughput).
   * **Embedding:** `jina-embeddings-v5-text-small` (~15,000 tokens/sec throughput per dedicated GPU with concurrent batching).
 
 #### Estimated Daily Workload
@@ -91,13 +88,13 @@ To calculate the number of physical GPUs, we account for a **2.5x Peak Multiplie
 
 ##### Chat Feature
 
-* **Average Throughput Needed:** ~1,446 tokens/sec.
-* **GPU Requirement (Baseline):** 18 GPUs.
-* **GPU Requirement (Peak):** **45 GPUs**.
+* **Average Throughput Needed:** ~1,500 tokens/sec.
+* **GPU Requirement (Baseline):** 1 GPUs.
+* **GPU Requirement (Peak):** **3 GPUs**.
 
 ##### Document Ingestion
 
-* **Average Throughput Needed:** ~2,893 tokens/sec.
+* **Average Throughput Needed:** ~3,000 tokens/sec.
 * **GPU Requirement (Baseline):** 1 GPUs.
 * **GPU Requirement (Peak):** **2 GPUs**.
 

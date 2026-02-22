@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: aruba-api-mock
+  name: aruba-api-mock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: aruba-api-mock
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/wiremock-default: "true"
+        io.kompose.service: aruba-api-mock
+    spec:
+      containers:
+        - args:
+            - --global-response-templating
+            - --verbose
+          image: wiremock/wiremock:latest
+          name: aruba-api-mock
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /home/wiremock
+              name: aruba-api-mock-claim0
+      restartPolicy: Always
+      volumes:
+        - name: aruba-api-mock-claim0
+          persistentVolumeClaim:
+            claimName: aruba-api-mock-claim0
