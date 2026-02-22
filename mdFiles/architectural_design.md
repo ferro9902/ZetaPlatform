@@ -31,9 +31,13 @@ The architectural design must consider the following constraints:
 
 ## System Architecture
 
-The overall system Architecture is to be implemented based on the shown schematic. All of the services Within this application will be installed as kubernetes pods while providing the specific resources they require to function correctly. <img style="float: right; background-color: gray; border-radius: 7px;"  width="50%"  src="../mdImgs/Zeta.drawio.png">
+The overall system Architecture is to be implemented based on the shown schematic. All of the services Within this application will be installed as kubernetes pods while providing the specific resources they require to function correctly.
 
-the Zeta Platform consists of several core microservices and infrastructure components:
+<p align="center">
+  <img style="background-color: gray; border-radius: 7px;"  width="50%"  src="../mdImgs/Zeta.drawio.png">
+</p>
+
+The Zeta Platform consists of several core microservices and infrastructure components:
 
 * **Zeta Platform Services:**
 
@@ -44,7 +48,7 @@ the Zeta Platform consists of several core microservices and infrastructure comp
   * **Integration Services:** Dedicated microservices for PEC Integration, SIGN Integration, and CONSERVATION integration to connect with external Aruba systems via OAuth2 authenticated REST APIs.
   * **AI Integration Service:** Interfaces with the AI components to provide semantic indexing and chat capabilities.
 * **Data and Object Storage:**
-  * **PostgreSQL:** Relational database storage used by the microservices for structured data.
+  * **PostgreSQL:** Relational database storage used by the microservices for structured data. This is installed through the CloudNativePG operator for simpler setup and management.
   * **Ceph & ROOK:** Object storage solution for securely historicizing user's documents.
 * **Message Broker:**
   * **RabbitMQ:** Handles asynchronous communication and message queuing between services. The main purpose of this component is to provide a mean to queue requests that do not require strictly immediate responses. An example would be a request from a user to upload a file and submit it for ingestion to langflow. In this case the user would upload the file through the BFF with the DMS (DOCs Management Service). Once the file has been fully uploaded, the DMS can then notify the AI integration service that this file is ready to be vectorized, triggering the start of the data ingestion pipeline.
@@ -69,6 +73,16 @@ To handle the constraints of managing over 5 million messages per day and 50 GB 
 
 * **Horizontal Pod Autoscaler (HPA):** Will be configured for stateless microservices (e.g., BFF, PEC Integration, and DOCs Management). HPA will automatically scale the number of pods up or down based on standard metrics like CPU and Memory utilization. Additionally, custom metrics from RabbitMQ (e.g., queue depth) will be utilized to asynchronously scale worker pods that process heavy document workloads.
 * **Node Autoscaling & Resource Pools:** While the environment is strictly on-premise, the architecture relies on specific Node Pools (A for time-sliced GPUs, B for full GPUs) to ensure the AI components (Ollama, Hugging Face TEI) have the necessary hardware accelerators under high demand without starving general application pods.
+
+### Storage infrastructure scalability
+
+The storage softwares that are utilized in this application have all been selected as known industry standards with the ability to easily scale both vertically and horizontally. These intrinsic characteristics ensure that they can effectively scale as time progresses:
+
+* **Milvus (Vector Database):** Milvus is designed with a cloud-native architecture that separates storage from computing. To handle a growing number of document embeddings, Milvus allows for sharding, where data is distributed across multiple nodes. As the vector index grows, new Query Nodes and Index Nodes can be added to the cluster to ensure low-latency searches.
+* **Ceph with Rook (Object Storage):** By using Rook to orchestrate Ceph within Kubernetes, the object storage layer becomes software-defined. Scaling is achieved by simply adding new physical nodes with available disk space to the cluster. Rook automatically detects the new resources and triggers automated data redistribution (rebalancing) across the OSDs (Object Storage Daemons). This ensures that the 50 GB of daily incoming documents are distributed evenly, preventing any kind of imbalance and maintaining high throughput.
+* **PostgreSQL on CloudNativePG (Relational Database):** For structured data and metadata, PostgreSQL is scaled using a Primary-Replica architecture (orchestrated via operators like CloudNativePG).
+  * **Read Scalability:** As the number of concurrent users and PEC mailboxes increases, additional Read Replicas are deployed to offload query traffic from the primary instance.
+  * **Write Scalability & Sharding:** For the massive volume of message metadata, Table Partitioning (by date or user ID range) is to be implemented. In extreme growth scenarios, Citus or similar extensions can be utilized to transform PostgreSQL into a distributed database, sharding tables across multiple nodes to handle high-frequency write operations.
 
 ### User Safety and Secure Token Storage
 
