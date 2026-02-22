@@ -1,4 +1,4 @@
-# Platform Zeta - Aruba <img src="mdImgs/arubapec.png" alt="arubapec" width="150" align="right"/>
+# Platform Zeta - Aruba <img src="mdImgs/aruba.png" alt="arubapec" width="100" align="right"/>
 
 ## Introduction
 
@@ -36,4 +36,6 @@ The system must be designed considering specific functional and dimensional cons
 
 This project implementation revolves around these assumptions:
 
-* Out of the 5mln request described in the requirements only 5% will directly target the document ingestion pipeline and another 5% wil target the chat feature directly
+* Out of the 5mln request described in the requirements only 5% will directly target the document ingestion pipeline and another 5% wil target the chat feature directly.
+* The GPU accelerated nodes on which AI services are installed will be provisioned with Nvidia RTX Pro 6000 GPUS (exposing 96GB VRAM and the full compute capability).
+* User queries will only address the text content of the uploaded documents, not any image or visual information within them (otherwise, the AI pipelines would need to be revised to leverage multi-modal models).

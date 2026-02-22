@@ -1,4 +1,4 @@
-# AI Engine and Semantic Indexing <img src="../mdImgs/arubapec.png" alt="arubapec" width="150" align="right"/>
+# AI Engine and Semantic Indexing <img src="../mdImgs/aruba.png" alt="arubapec" width="100" align="right"/>
 
 This document covers the AI engine and semantic indexing of the Platform Zeta.
 
@@ -10,9 +10,9 @@ The objectives are to:
 
 ## Technical Implementation
 
-![alt text](<Zeta AI Engine.drawio.png>)
+![alt text](<../mdImgs/Zeta AI Engine.drawio.png>)
 
-The application utilizes Langflow to design and orchestrate the Retrieval-Augmented Generation (RAG) pipeline. This flow mockup is used to show how the semantic indexing component is to be structured. It demonstrates a fully localized, containerized AI ecosystem that complies strictly with the fundamental constraint of the project: the solution must be designed as totally on-premise, without the use of external cloud providers or third-party AI services.
+The application utilizes Langflow to design and orchestrate the Retrieval-Augmented Generation (RAG) and ingestion pipelines. This schematic describes how the different services interact. The selected software allows for a fully localized, containerized AI ecosystem that complies strictly with the fundamental constraint of the project: the solution must be designed as totally on-premise, without the use of external cloud providers or third-party AI services.
 
 ### Technologies and Approaches
 
@@ -47,7 +47,7 @@ When a customer activates semantic indexing for their documents:
 
 This functionality is to be implemented based on the structure of the mock-up included below.
 
-![flow schematic](../mdImgs/flowSchematic.png)
+<img style="border-radius: 7px;"  src="../mdImgs/flowSchematic.png">
 
 When a user interrogates their documents (both historicized and operational), the Langflow pipeline executes the following sequence:
 
@@ -57,6 +57,8 @@ When a user interrogates their documents (both historicized and operational), th
 4. **Prompt Construction:** The `Prompt Template` combines the retrieved document context, the user's original question, and the current date/time (fetched via a utility node configured for `Europe/Rome`).
 5. **LLM Generation:** The constructed prompt is sent to the local Ollama `Agent` node. The LLM processes the context and formulates a grounded response. The agent is additionally equipped with a `Calculator` tool to perform arithmetic operations if the query requires it.
 6. **Output:** The synthesized answer is returned to the user via the `Chat Output` node, completing the interaction loop.
+
+The Current Date and Calculator nodes are added to the flow with the sole purpose of providing the LLM all information to make informed decisions and provide accurate answers.
 
 ### Underlying Architecture Requirements
 
@@ -99,9 +101,12 @@ To calculate the number of physical GPUs, we account for a **2.5x Peak Multiplie
 * **GPU Requirement (Baseline):** 1 GPUs.
 * **GPU Requirement (Peak):** **2 GPUs**.
 
-#### 4. Final Sizing Recommendation
+### Safety and Data Isolation with Non-Deterministic AI Tools
 
-| Configuration | Physical RTX Pro 6000 GPUs | Total Kubernetes Pods |
-| :--- | :--- | :--- |
-| **Minimum (24h Average)** | 21 | 1 |
-| **Recommended (Peak Ready)** | **53** | **2** |
+When the semantic indexing of documents is activated , the platform leverages AI models and vector databases (such as Milvus) to allow users to interact with their documents via a chat agent. Because Generative AI and vector embeddings rely on non-deterministic retrieval methods, we cannot rely on the LLM itself to guarantee data isolation and prevent cross-user data leakage.
+
+To ensure absolute user safety and strict tenant isolation, additional deterministic filters must be implemented at the Vector Database level:
+
+* **Metadata Tagging:** When a document is processed by Hugging Face TEI and its embeddings are stored in Milvus, strict metadata tags (e.g., `user_id`, and `document_id`) are permanently bound to the vector payload.
+* **Search Expressions:** During the Retrieval-Augmented Generation (RAG) process, when a user asks a question, the vector similarity search is not executed globally. Instead, the backend injects mandatory boolean search expressions into the Milvus query.
+* **Execution:** The query takes the form of `similarity_search(query_vector) WHERE user_id == <authenticated_user_id>`. This ensures the vector database filters out all embeddings belonging to other users *before* performing the similarity ranking, ensuring that the AI agent only has access to the precise, authorized context of the querying user.
