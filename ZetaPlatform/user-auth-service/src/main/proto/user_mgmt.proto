@@ -6,7 +6,7 @@ option java_multiple_files = true;
 option java_package = "it.aruba.zeta.user.grpc";
 option java_outer_classname = "UserProvisioningProto";
 
-service UserProvisioningService {
+service UserManagementService {
   rpc CreateUser (CreateUserRequest) returns (UserResponse);
 
   rpc GetUser (GetUserRequest) returns (UserResponse);
@@ -16,9 +16,7 @@ service UserProvisioningService {
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
 }
 
-// ----------------------------------------
 // Message Definitions
-// ----------------------------------------
 
 message User {
   string id = 1;

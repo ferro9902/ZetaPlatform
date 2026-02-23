@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package com.aruba.zeta.integrtoken.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.aruba.zeta.integrtoken.grpc";
+option java_outer_classname = "IntegrationTokenProto";
+
+// Enums
+
+enum IntegrationServiceType {
+  SERVICE_TYPE_UNSPECIFIED = 0;
+  SERVICE_TYPE_PEC = 1;
+  SERVICE_TYPE_SIGN = 2;
+  SERVICE_TYPE_CONSERVATION = 3;
+}
+
+// External services token integration service
+
+service IntegrationTokenService {
+  rpc GetServiceToken (GetServiceTokenRequest) returns (GetServiceTokenResponse);
+  rpc SaveServiceToken (SaveServiceTokenRequest) returns (SaveServiceTokenResponse);
+}
+
+message GetServiceTokenRequest {
+  string user_id = 1;
+  IntegrationServiceType service_type = 2;
+}
+
+message GetServiceTokenResponse {
+  bool found = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  int64 expires_at = 4;
+}
+
+message SaveServiceTokenRequest {
+  string user_id = 1;
+  IntegrationServiceType service_type = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+  int64 expires_at = 5;
+}
+
+message SaveServiceTokenResponse {
+  bool success = 1;
+  string message = 2;
+}

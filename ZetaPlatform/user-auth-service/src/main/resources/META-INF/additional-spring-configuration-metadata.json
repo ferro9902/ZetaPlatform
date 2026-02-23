@@ -1,0 +1,20 @@
+{
+  "properties": [
+    {
+      "name": "zeta.auth.encryption.master-key",
+      "type": "java.lang.String",
+      "description": "AES-256-GCM master key for OAuth2 token encryption at rest. Must be a Base64-encoded 32-byte (256-bit) key. Sourced from the ZETA_ENCRYPTION_MASTER_KEY Kubernetes Secret."
+    },
+    {
+      "name": "zeta.auth.internal.hmac-secret",
+      "type": "java.lang.String",
+      "description": "HMAC-SHA256 secret used to sign and verify internal JWT tokens."
+    },
+    {
+      "name": "zeta.auth.internal.token-validity-seconds",
+      "type": "java.lang.Long",
+      "description": "Validity duration in seconds for internally issued JWT tokens. Defaults to 3600 (1 hour).",
+      "defaultValue": 3600
+    }
+  ]
+}

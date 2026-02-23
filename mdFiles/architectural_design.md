@@ -101,7 +101,7 @@ OAuth2 tokens (Access Tokens and Refresh Tokens) must never be saved in plaintex
 
 #### Secure Key Management (Kubernetes Secrets)
 
-To encrypt and decrypt tokens, the Spring Boot application requires a "Master Key". This key is not to be hardcoded in the source code or in `application.yml` files.
+To encrypt and decrypt tokens, the Spring Boot application requires a "Master Key". This key is not to be hardcoded in the source code.
 
 * Because the system is orchestrated via Kubernetes, the Master Key will be stored as a Kubernetes Secret.
 * This Secret is then mounted into the `Authentication and ID Service` Pod as an environment variable, allowing Spring Boot to access it securely at runtime.

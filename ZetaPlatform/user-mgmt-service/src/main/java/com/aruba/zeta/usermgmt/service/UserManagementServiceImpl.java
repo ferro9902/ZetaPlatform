@@ -1,7 +1,15 @@
 package com.aruba.zeta.usermgmt.service;
 
 import io.grpc.stub.StreamObserver;
-import it.aruba.zeta.user.grpc.*;
+import it.aruba.zeta.user.grpc.CreateUserRequest;
+import it.aruba.zeta.user.grpc.DeleteUserRequest;
+import it.aruba.zeta.user.grpc.DeleteUserResponse;
+import it.aruba.zeta.user.grpc.GetUserRequest;
+import it.aruba.zeta.user.grpc.UpdateUserRequest;
+import it.aruba.zeta.user.grpc.User;
+import it.aruba.zeta.user.grpc.UserManagementServiceGrpc.UserManagementServiceImplBase;
+import it.aruba.zeta.user.grpc.UserResponse;
+import lombok.RequiredArgsConstructor;
 
 import com.aruba.zeta.usermgmt.entity.UserEntity;
 import com.aruba.zeta.usermgmt.repository.UserRepo;
@@ -12,13 +20,10 @@ import java.util.UUID;
 import org.springframework.grpc.server.service.GrpcService;
 
 @GrpcService
-public class UserProvisioningServiceImpl extends UserProvisioningServiceGrpc.UserProvisioningServiceImplBase {
+@RequiredArgsConstructor
+public class UserManagementServiceImpl extends UserManagementServiceImplBase {
 
     private final UserRepo userRepository;
-
-    public UserProvisioningServiceImpl(UserRepo userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public void createUser(CreateUserRequest request, StreamObserver<UserResponse> responseObserver) {

@@ -31,6 +31,7 @@
 		<grpc.version>1.77.1</grpc.version>
 		<protobuf-java.version>4.33.4</protobuf-java.version>
 		<spring-grpc.version>1.0.2</spring-grpc.version>
+		<jjwt.version>0.12.6</jjwt.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -52,6 +53,25 @@
 		<dependency>
 			<groupId>org.springframework.grpc</groupId>
 			<artifactId>spring-grpc-spring-boot-starter</artifactId>
+		</dependency>
+
+		<!-- JWT token generation and validation -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

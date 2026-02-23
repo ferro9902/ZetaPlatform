@@ -2,26 +2,13 @@ syntax = "proto3";
 
 package com.aruba.zeta.userauth.grpc;
 
-option java_multiple_files = true; 
+option java_multiple_files = true;
 option java_package = "com.aruba.zeta.userauth.grpc";
 option java_outer_classname = "UserAuthProto";
 
-// ====================================================================
-// ENUMS
-// ====================================================================
+// User Authentication Service
 
-enum IntegrationServiceType {
-  SERVICE_TYPE_UNSPECIFIED = 0;
-  SERVICE_TYPE_PEC = 1;
-  SERVICE_TYPE_SIGN = 2;
-  SERVICE_TYPE_CONSERVATION = 3;
-}
-
-// ====================================================================
-// 1. PLATFORM AUTHENTICATION SERVICE
-// ====================================================================
-
-service PlatformAuthService {
+service UserAuthService {
   rpc Login (LoginRequest) returns (LoginResponse);
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
 }
@@ -46,38 +33,4 @@ message ValidateTokenResponse {
   bool is_valid = 1;
   string user_id = 2;
   string role = 3;
-}
-
-// ====================================================================
-// 2. INTEGRATION TOKEN MANAGEMENT SERVICE (OAuth2 for Aruba Services)
-// ====================================================================
-
-service IntegrationTokenService {
-  rpc GetServiceToken (GetServiceTokenRequest) returns (GetServiceTokenResponse);
-  rpc SaveServiceToken (SaveServiceTokenRequest) returns (SaveServiceTokenResponse);
-}
-
-message GetServiceTokenRequest {
-  string user_id = 1;
-  IntegrationServiceType service_type = 2;
-}
-
-message GetServiceTokenResponse {
-  bool found = 1;
-  string access_token = 2;
-  string refresh_token = 3;
-  int64 expires_at = 4;
-}
-
-message SaveServiceTokenRequest {
-  string user_id = 1;
-  IntegrationServiceType service_type = 2;
-  string access_token = 3;
-  string refresh_token = 4;
-  int64 expires_at = 5;
-}
-
-message SaveServiceTokenResponse {
-  bool success = 1;
-  string message = 2;
 }

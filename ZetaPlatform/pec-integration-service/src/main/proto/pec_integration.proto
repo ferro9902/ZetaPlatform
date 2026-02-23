@@ -8,9 +8,7 @@ option java_outer_classname = "PecIntegrationProto";
 
 import "google/protobuf/timestamp.proto";
 
-// ----------------------------------------
 // Service Definition
-// ----------------------------------------
 
 service PecIntegrationService {
   rpc GetMailboxes (GetMailboxesRequest) returns (GetMailboxesResponse);
@@ -18,9 +16,7 @@ service PecIntegrationService {
   rpc SendMessage (SendMessageRequest) returns (SendMessageResponse);
 }
 
-// ----------------------------------------
 // Enumerations
-// ----------------------------------------
 
 enum MailboxStatus {
   MAILBOX_STATUS_UNSPECIFIED = 0;
@@ -37,9 +33,7 @@ enum MessageStatus {
   MESSAGE_STATUS_SENT = 4;
 }
 
-// ----------------------------------------
 // Data Structures
-// ----------------------------------------
 
 message Mailbox {
   string id = 1;
@@ -67,9 +61,7 @@ message PecMessage {
   repeated AttachmentRef attachments = 9;
 }
 
-// ----------------------------------------
 // Request & Response Messages
-// ----------------------------------------
 
 message GetMailboxesRequest {
   string user_id = 1;

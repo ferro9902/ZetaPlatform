@@ -2,31 +2,26 @@ package com.aruba.zeta.userauth.client;
 
 import org.springframework.stereotype.Component;
 
-import it.aruba.zeta.user.grpc.CreateUserRequest;
-import it.aruba.zeta.user.grpc.DeleteUserRequest;
-import it.aruba.zeta.user.grpc.DeleteUserResponse;
 import it.aruba.zeta.user.grpc.GetUserRequest;
-import it.aruba.zeta.user.grpc.UpdateUserRequest;
-import it.aruba.zeta.user.grpc.UserProvisioningServiceGrpc;
+import it.aruba.zeta.user.grpc.UserManagementServiceGrpc;
 import it.aruba.zeta.user.grpc.UserResponse;
 
 /**
  * gRPC client for user-mgmt-service.
  *
- * Used to validate that a userId exists in the central user registry before
- * creating a PEC mailbox for that user.
+ * Used to validate that a userId exists in the central user registry.
  */
 @Component
 public class UserMgmtClient {
 
-    private final UserProvisioningServiceGrpc.UserProvisioningServiceBlockingStub stub;
+    private final UserManagementServiceGrpc.UserManagementServiceBlockingStub stub;
 
     /**
      * Constructs the client with the given gRPC blocking stub.
      *
-     * @param stub the blocking stub for UserProvisioningService
+     * @param stub the blocking stub for UserManagementService
      */
-    public UserMgmtClient(UserProvisioningServiceGrpc.UserProvisioningServiceBlockingStub stub) {
+    public UserMgmtClient(UserManagementServiceGrpc.UserManagementServiceBlockingStub stub) {
         this.stub = stub;
     }
 
@@ -41,36 +36,4 @@ public class UserMgmtClient {
         return stub.getUser(GetUserRequest.newBuilder().setId(userId).build());
     }
 
-    /**
-     * Creates a new user in the central registry.
-     *
-     * @param request the CreateUserRequest containing user details
-     * @return UserResponse containing the created user
-     * @throws io.grpc.StatusRuntimeException if the creation fails (e.g. ALREADY_EXISTS)
-     */
-    public UserResponse createUser(CreateUserRequest request) {
-        return stub.createUser(request);
-    }
-
-    /**
-     * Updates an existing user in the central registry.
-     *
-     * @param request the UpdateUserRequest containing updated user details
-     * @return UserResponse containing the updated user
-     * @throws io.grpc.StatusRuntimeException if the update fails (e.g. NOT_FOUND)
-     */
-    public UserResponse updateUser(UpdateUserRequest request) {
-        return stub.updateUser(request);
-    }
-
-    /**
-     * Deletes a user from the central registry by ID.
-     *
-     * @param userId the unique identifier of the user to delete
-     * @return DeleteUserResponse indicating success or failure
-     * @throws io.grpc.StatusRuntimeException if the deletion fails
-     */
-    public DeleteUserResponse deleteUser(String userId) {
-        return stub.deleteUser(DeleteUserRequest.newBuilder().setId(userId).build());
-    }
 }

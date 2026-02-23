@@ -7,7 +7,7 @@ import it.aruba.zeta.user.grpc.DeleteUserRequest;
 import it.aruba.zeta.user.grpc.DeleteUserResponse;
 import it.aruba.zeta.user.grpc.GetUserRequest;
 import it.aruba.zeta.user.grpc.UpdateUserRequest;
-import it.aruba.zeta.user.grpc.UserProvisioningServiceGrpc;
+import it.aruba.zeta.user.grpc.UserManagementServiceGrpc;
 import it.aruba.zeta.user.grpc.UserResponse;
 
 /**
@@ -19,14 +19,14 @@ import it.aruba.zeta.user.grpc.UserResponse;
 @Component
 public class UserMgmtClient {
 
-    private final UserProvisioningServiceGrpc.UserProvisioningServiceBlockingStub stub;
+    private final UserManagementServiceGrpc.UserManagementServiceBlockingStub stub;
 
     /**
      * Constructs the client with the given gRPC blocking stub.
      *
-     * @param stub the blocking stub for UserProvisioningService
+     * @param stub the blocking stub for UserManagementService
      */
-    public UserMgmtClient(UserProvisioningServiceGrpc.UserProvisioningServiceBlockingStub stub) {
+    public UserMgmtClient(UserManagementServiceGrpc.UserManagementServiceBlockingStub stub) {
         this.stub = stub;
     }
 

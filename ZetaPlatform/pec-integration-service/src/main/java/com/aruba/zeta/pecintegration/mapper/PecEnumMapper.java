@@ -16,9 +16,7 @@ public final class PecEnumMapper {
 
     private PecEnumMapper() {}
 
-    // ------------------------------------------------------------------ //
     //  MailboxStatus
-    // ------------------------------------------------------------------ //
 
     public static MailboxStatus toProto(EMailboxStatus status) {
         return switch (status) {
@@ -37,9 +35,7 @@ public final class PecEnumMapper {
         };
     }
 
-    // ------------------------------------------------------------------ //
     //  MessageStatus
-    // ------------------------------------------------------------------ //
 
     public static MessageStatus toProto(EMessageStatus status) {
         return switch (status) {
