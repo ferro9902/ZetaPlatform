@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.aruba.zeta.pecintegration.enums.MessageStatus;
+import com.aruba.zeta.pecintegration.enums.EMessageStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class PecMessageEntity {@Id
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private MessageStatus status;
+    private EMessageStatus status;
 
     // The actual time the message was sent/received
     @Column(name = "message_timestamp", nullable = false)

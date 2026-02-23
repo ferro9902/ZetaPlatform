@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package it.aruba.zeta.user;
+
+option java_multiple_files = true;
+option java_package = "it.aruba.zeta.user.grpc";
+option java_outer_classname = "UserProvisioningProto";
+
+service UserProvisioningService {
+  rpc CreateUser (CreateUserRequest) returns (UserResponse);
+
+  rpc GetUser (GetUserRequest) returns (UserResponse);
+
+  rpc UpdateUser (UpdateUserRequest) returns (UserResponse);
+
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+// ----------------------------------------
+// Message Definitions
+// ----------------------------------------
+
+message User {
+  string id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  bool is_active = 5;
+  string created_at = 6;
+  string username = 7;
+  bool semantic_indexing_enabled = 8;
+  string updated_at = 9;
+  string role = 10;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string username = 4;
+  bool semantic_indexing_enabled = 5;
+  string role = 6;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  bool is_active = 5;
+  string username = 6;
+  bool semantic_indexing_enabled = 7;
+  string role = 8;
+}
+
+message UserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+  string message = 2;
+}

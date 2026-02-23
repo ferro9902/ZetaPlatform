@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.aruba.zeta.pecintegration.enums.MailboxStatus;
+import com.aruba.zeta.pecintegration.enums.EMailboxStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -38,7 +38,7 @@ public class PecMailboxEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private MailboxStatus status;
+    private EMailboxStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

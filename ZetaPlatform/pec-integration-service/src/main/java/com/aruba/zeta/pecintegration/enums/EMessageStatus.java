@@ -1,6 +1,6 @@
 package com.aruba.zeta.pecintegration.enums;
 
-public enum MessageStatus {
+public enum EMessageStatus {
     ACCEPTED,
     DELIVERED,
     FAILED,

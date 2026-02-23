@@ -23,9 +23,11 @@ public class UserProvisioningServiceImpl extends UserProvisioningServiceGrpc.Use
     @Override
     public void createUser(CreateUserRequest request, StreamObserver<UserResponse> responseObserver) {
         UserEntity entity = new UserEntity();
+        entity.setUsername(request.getUsername());
         entity.setEmail(request.getEmail());
         entity.setFirstName(request.getFirstName());
         entity.setLastName(request.getLastName());
+        entity.setSemanticIndexingEnabled(request.getSemanticIndexingEnabled());
         if (!request.getRole().isEmpty()) {
             entity.setRole(request.getRole());
         }
@@ -71,9 +73,13 @@ public class UserProvisioningServiceImpl extends UserProvisioningServiceGrpc.Use
                             if (!request.getEmail().isEmpty()) {
                                 user.setEmail(request.getEmail());
                             }
+                            if (!request.getUsername().isEmpty()) {
+                                user.setUsername(request.getUsername());
+                            }
                             if (!request.getRole().isEmpty()) {
                                 user.setRole(request.getRole());
                             }
+                            user.setSemanticIndexingEnabled(request.getSemanticIndexingEnabled());
 
                             UserEntity savedEntity = userRepository.save(user);
                             UserResponse response = UserResponse.newBuilder()
@@ -93,7 +99,10 @@ public class UserProvisioningServiceImpl extends UserProvisioningServiceGrpc.Use
         UUID id = UUID.fromString(request.getId());
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
-            DeleteUserResponse response = DeleteUserResponse.newBuilder().build();
+            DeleteUserResponse response = DeleteUserResponse.newBuilder()
+                    .setSuccess(true)
+                    .setMessage("User deleted successfully")
+                    .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
@@ -112,7 +121,9 @@ public class UserProvisioningServiceImpl extends UserProvisioningServiceGrpc.Use
                 .setLastName(entity.getLastName())
                 .setRole(entity.getRole())
                 .setIsActive(entity.isActive())
+                .setSemanticIndexingEnabled(entity.isSemanticIndexingEnabled())
                 .setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "")
+                .setUpdatedAt(entity.getUpdatedAt() != null ? entity.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "")
                 .build();
     }
 

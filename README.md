@@ -40,5 +40,5 @@ This project implementation revolves around these assumptions:
 * The GPU accelerated nodes on which AI services are installed will be provisioned with Nvidia RTX Pro 6000 GPUS (exposing 96GB VRAM and the full compute capability).
 * User queries will only address the text content of the uploaded documents, not any image or visual information within them (otherwise, the AI pipelines would need to be revised to leverage multi-modal models).
 * Integration with external user services (provided by Aruba) happens through a linking request triggered by the user, where the Zeta application interacts with the external service to retrieve necessary information (mainly the OAuth2 token).
-* At this stage of the application setup the Tokens are supposed to be permanent (with no predetermined lifespan).
+* At this stage of the application the User Tokens for external Aruba services are expected to be permanent (Non-expiring access tokens).
 * external API services expose no Asynchronous Updates interfaces (e.g. webhook, rabbitMQ) to push update to the Zeta Platform. All updates are triggered through background polling or user-triggered actions.

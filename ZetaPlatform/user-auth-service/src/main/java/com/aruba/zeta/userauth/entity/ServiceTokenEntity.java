@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.aruba.zeta.userauth.enums.IntegrationServiceType;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -43,7 +44,7 @@ public class ServiceTokenEntity {
     private String encryptedRefreshToken;
 
     @Column(name = "token_expires_at", nullable = false)
-    private LocalDateTime tokenExpiresAt;
+    private Instant tokenExpiresAt;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -19,5 +19,7 @@
         "springframework",
         "userauth",
         "usermgmt"
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
