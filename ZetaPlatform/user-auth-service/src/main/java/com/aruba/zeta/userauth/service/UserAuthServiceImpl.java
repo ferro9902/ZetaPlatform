@@ -3,6 +3,9 @@ package com.aruba.zeta.userauth.service;
 import com.aruba.zeta.userauth.client.UserMgmtClient;
 import com.aruba.zeta.userauth.entity.AuthUserEntity;
 import com.aruba.zeta.userauth.repository.AuthUserRepo;
+import com.aruba.zeta.userauth.repository.ServiceTokenRepo;
+import com.aruba.zeta.userauth.grpc.DeleteUserRequest;
+import com.aruba.zeta.userauth.grpc.DeleteUserResponse;
 import com.aruba.zeta.userauth.grpc.LoginRequest;
 import com.aruba.zeta.userauth.grpc.LoginResponse;
 import com.aruba.zeta.userauth.grpc.RegisterUserRequest;
@@ -26,6 +29,7 @@ import java.util.UUID;
 public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImplBase {
 
     private final AuthUserRepo authUserRepo;
+    private final ServiceTokenRepo serviceTokenRepo;
     private final UserMgmtClient userMgmtClient;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
@@ -193,6 +197,49 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
         }
     }
 
+    @Override
+    public void deleteUser(DeleteUserRequest request, StreamObserver<DeleteUserResponse> responseObserver) {
+        String userIdStr = request.getUserId();
+
+        log.debug("Attempting to delete user with id: {}", userIdStr);
+
+        try {
+            UUID userId = UUID.fromString(userIdStr);
+
+            if (authUserRepo.findByUserId(userId).isEmpty()) {
+                log.warn("Delete failed: user {} not found in AuthRepo", userIdStr);
+                sendDeleteError(responseObserver, "User not found");
+                return;
+            }
+
+            serviceTokenRepo.deleteAllByUserId(userId);
+            authUserRepo.deleteById(authUserRepo.findByUserId(userId).get().getId());
+
+            try {
+                userMgmtClient.deleteUser(userIdStr);
+            } catch (Exception e) {
+                log.error("Delete: auth credentials removed but UserMgmtService deletion failed for user {}", userIdStr, e);
+                sendDeleteError(responseObserver, "Credentials deleted but user profile removal failed");
+                return;
+            }
+
+            DeleteUserResponse response = DeleteUserResponse.newBuilder()
+                    .setSuccess(true)
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            log.info("User {} deleted successfully", userIdStr);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("Delete failed: invalid user id format '{}'", userIdStr);
+            sendDeleteError(responseObserver, "Invalid user id format");
+        } catch (Exception e) {
+            log.error("Unexpected error during deletion of user {}", userIdStr, e);
+            sendDeleteError(responseObserver, "Internal server error");
+        }
+    }
+
     private void sendLoginError(StreamObserver<LoginResponse> observer, String message) {
         observer.onNext(LoginResponse.newBuilder()
                 .setSuccess(false)
@@ -212,6 +259,14 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
     private void sendInvalidToken(StreamObserver<ValidateTokenResponse> observer) {
         observer.onNext(ValidateTokenResponse.newBuilder()
                 .setIsValid(false)
+                .build());
+        observer.onCompleted();
+    }
+
+    private void sendDeleteError(StreamObserver<DeleteUserResponse> observer, String message) {
+        observer.onNext(DeleteUserResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage(message)
                 .build());
         observer.onCompleted();
     }

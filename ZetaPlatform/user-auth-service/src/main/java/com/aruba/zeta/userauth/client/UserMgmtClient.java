@@ -3,6 +3,8 @@ package com.aruba.zeta.userauth.client;
 import org.springframework.stereotype.Component;
 
 import it.aruba.zeta.user.grpc.CreateUserRequest;
+import it.aruba.zeta.user.grpc.DeleteUserRequest;
+import it.aruba.zeta.user.grpc.DeleteUserResponse;
 import it.aruba.zeta.user.grpc.GetUserRequest;
 import it.aruba.zeta.user.grpc.UserManagementServiceGrpc;
 import it.aruba.zeta.user.grpc.UserResponse;
@@ -59,6 +61,17 @@ public class UserMgmtClient {
                 .setRole(role)
                 .setSemanticIndexingEnabled(semanticIndexingEnabled)
                 .build());
+    }
+
+    /**
+     * Deletes a user from the user-mgmt-service.
+     *
+     * @param userId the unique identifier of the user to delete
+     * @return DeleteUserResponse containing success flag and message
+     * @throws io.grpc.StatusRuntimeException on gRPC errors (e.g. NOT_FOUND)
+     */
+    public DeleteUserResponse deleteUser(String userId) {
+        return stub.deleteUser(DeleteUserRequest.newBuilder().setId(userId).build());
     }
 
 }

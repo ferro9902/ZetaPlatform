@@ -11,4 +11,6 @@ import com.aruba.zeta.userauth.enums.IntegrationServiceType;
 public interface ServiceTokenRepo extends JpaRepository<ServiceTokenEntity, UUID> {
 
     Optional<ServiceTokenEntity> findByUserIdAndServiceType(UUID userId, IntegrationServiceType serviceType);
+
+    void deleteAllByUserId(UUID userId);
 }
