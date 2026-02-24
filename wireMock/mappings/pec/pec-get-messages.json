@@ -1,0 +1,42 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/mailboxes/[^/]+/messages",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "messages": [
+        {
+          "id": "mocked-msg-id-001",
+          "from": "mittente@pec.aruba.it",
+          "to": "utente.test@pec.aruba.it",
+          "subject": "Comunicazione di test",
+          "body": "Corpo del messaggio di test.",
+          "status": "DELIVERED",
+          "received_at": "2026-02-24T10:00:00Z",
+          "attachments": [
+            {
+              "id": "mocked-attach-id-001",
+              "file_name": "documento.pdf",
+              "content_type": "application/pdf",
+              "size": 20480
+            }
+          ]
+        }
+      ],
+      "page": 0,
+      "size": 20,
+      "total_elements": 1,
+      "total_pages": 1
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/mailboxes",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "id": "mocked-mailbox-id-001",
+        "pec_address": "utente.test@pec.aruba.it",
+        "status": "ACTIVE",
+        "display_name": "Casella Test",
+        "created_at": "2025-01-15T09:00:00Z"
+      }
+    ]
+  }
+}
