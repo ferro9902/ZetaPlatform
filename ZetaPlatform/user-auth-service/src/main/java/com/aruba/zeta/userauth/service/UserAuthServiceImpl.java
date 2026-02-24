@@ -5,6 +5,8 @@ import com.aruba.zeta.userauth.entity.AuthUserEntity;
 import com.aruba.zeta.userauth.repository.AuthUserRepo;
 import com.aruba.zeta.userauth.grpc.LoginRequest;
 import com.aruba.zeta.userauth.grpc.LoginResponse;
+import com.aruba.zeta.userauth.grpc.RegisterUserRequest;
+import com.aruba.zeta.userauth.grpc.RegisterUserResponse;
 import com.aruba.zeta.userauth.grpc.UserAuthServiceGrpc;
 import com.aruba.zeta.userauth.grpc.ValidateTokenRequest;
 import com.aruba.zeta.userauth.grpc.ValidateTokenResponse;
@@ -136,8 +138,71 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
         }
     }
 
+    @Override
+    public void registerUser(RegisterUserRequest request, StreamObserver<RegisterUserResponse> responseObserver) {
+        String username = request.getUsername();
+
+        log.debug("Attempting to register user: {}", username);
+
+        try {
+            if (authUserRepo.findByUsername(username).isPresent()) {
+                log.warn("Registration failed: username {} already exists", username);
+                sendRegisterError(responseObserver, "Username already exists");
+                return;
+            }
+
+            UserResponse createResponse;
+            try {
+                createResponse = userMgmtClient.createUser(
+                        username,
+                        request.getEmail(),
+                        request.getFirstName(),
+                        request.getLastName(),
+                        request.getRole(),
+                        request.getSemanticIndexingEnabled()
+                );
+            } catch (Exception e) {
+                log.error("Registration failed: could not create user {} in UserMgmtService", username, e);
+                sendRegisterError(responseObserver, "User creation failed");
+                return;
+            }
+
+            String userId = createResponse.getUser().getId();
+            String passwordHash = passwordEncoder.encode(request.getPassword());
+
+            AuthUserEntity authUser = AuthUserEntity.builder()
+                    .userId(UUID.fromString(userId))
+                    .username(username)
+                    .passwordHash(passwordHash)
+                    .build();
+
+            authUserRepo.save(authUser);
+
+            RegisterUserResponse response = RegisterUserResponse.newBuilder()
+                    .setSuccess(true)
+                    .setUserId(userId)
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            log.info("User {} registered successfully with id {}", username, userId);
+
+        } catch (Exception e) {
+            log.error("Unexpected error during registration for user {}", username, e);
+            sendRegisterError(responseObserver, "Internal server error");
+        }
+    }
+
     private void sendLoginError(StreamObserver<LoginResponse> observer, String message) {
         observer.onNext(LoginResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage(message)
+                .build());
+        observer.onCompleted();
+    }
+
+    private void sendRegisterError(StreamObserver<RegisterUserResponse> observer, String message) {
+        observer.onNext(RegisterUserResponse.newBuilder()
                 .setSuccess(false)
                 .setErrorMessage(message)
                 .build());
