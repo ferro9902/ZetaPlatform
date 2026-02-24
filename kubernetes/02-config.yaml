@@ -1,0 +1,60 @@
+# =============================================================================
+# ZetaPlatform – Configuration
+# Namespace: aruba
+#
+# IMPORTANT: This file contains placeholder/test credentials only.
+# For production, manage secrets out-of-band (e.g. kubectl create secret or
+# a secrets manager) and do NOT commit real credentials to the repository.
+#
+# Resources:
+#   - Secret: zeta-secrets   (sensitive values)
+#   - ConfigMap: zeta-config (non-sensitive overrides)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Secret – injected as env vars into all service pods via secretRef
+#
+# DB_URL is NOT here because user-mgmt and user-auth need different databases.
+# It is set per-Deployment in 03-deployments.yaml instead.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zeta-secrets
+  namespace: aruba
+type: Opaque
+stringData:
+  # --- Database credentials (shared, same PostgreSQL instance) ---
+  DB_USERNAME: "zetauser"
+  DB_PASSWORD: "change-me-before-any-real-use"
+
+  # --- user-auth-service: AES-256-GCM key (Base64-encoded 32 bytes) ---
+  ZETA_ENCRYPTION_MASTER_KEY: "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+
+  # --- user-auth-service: HMAC-SHA256 secret for internal JWT signing ---
+  ZETA_AUTH_INTERNAL_HMAC_SECRET: "change-this-to-a-secure-random-secret-string-for-testing"
+
+  # --- pec-integration-service: Aruba OAuth2 app credentials ---
+  # Dummy values are fine while WireMock is the backend (it ignores them).
+  ARUBA_OAUTH2_CLIENT_ID: "test-client-id"
+  ARUBA_OAUTH2_CLIENT_SECRET: "test-client-secret"
+
+---
+# -----------------------------------------------------------------------------
+# ConfigMap – non-sensitive settings injected into all service pods
+#
+# Keys are UPPER_SNAKE_CASE env-var names; Spring Boot's relaxed binding maps
+# them to the corresponding dotted property names automatically.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zeta-config
+  namespace: aruba
+data:
+  # --- Aruba external API overrides → WireMock for testing ---
+  # These override the real aruba.it URLs baked into application.properties.
+  ARUBA_OAUTH2_AUTHORIZATION_URI: "http://aruba-api-mock:8080/oauth2/authorize"
+  ARUBA_OAUTH2_TOKEN_URI: "http://aruba-api-mock:8080/oauth2/token"
+  ARUBA_OAUTH2_API_BASE_URL: "http://aruba-api-mock:8080/v1"
+  ARUBA_OAUTH2_REDIRECT_URI: "http://localhost:8080/pec/oauth2/callback"
