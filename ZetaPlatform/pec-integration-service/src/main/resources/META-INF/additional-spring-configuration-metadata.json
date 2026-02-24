@@ -1,0 +1,56 @@
+{
+  "properties": [
+    {
+      "name": "aruba.oauth2.client-id",
+      "type": "java.lang.String",
+      "description": "OAuth2 client ID for the Aruba PEC API. Sourced from the ARUBA_OAUTH2_CLIENT_ID environment variable."
+    },
+    {
+      "name": "aruba.oauth2.client-secret",
+      "type": "java.lang.String",
+      "description": "OAuth2 client secret for the Aruba PEC API. Sourced from the ARUBA_OAUTH2_CLIENT_SECRET environment variable."
+    },
+    {
+      "name": "aruba.oauth2.authorization-uri",
+      "type": "java.lang.String",
+      "description": "Authorization endpoint URI for the Aruba OAuth2 provider.",
+      "defaultValue": "https://oauth.aruba.it/oauth2/authorize"
+    },
+    {
+      "name": "aruba.oauth2.token-uri",
+      "type": "java.lang.String",
+      "description": "Token endpoint URI for the Aruba OAuth2 provider.",
+      "defaultValue": "https://oauth.aruba.it/oauth2/token"
+    },
+    {
+      "name": "aruba.oauth2.redirect-uri",
+      "type": "java.lang.String",
+      "description": "Redirect URI registered with the Aruba OAuth2 provider. Sourced from the ARUBA_OAUTH2_REDIRECT_URI environment variable.",
+      "defaultValue": "https://zeta.aruba.local/pec/oauth2/callback"
+    },
+    {
+      "name": "aruba.oauth2.scope",
+      "type": "java.lang.String",
+      "description": "Space-separated list of OAuth2 scopes requested from the Aruba PEC API.",
+      "defaultValue": "pec:read pec:write"
+    },
+    {
+      "name": "aruba.oauth2.api-base-url",
+      "type": "java.lang.String",
+      "description": "Base URL for the Aruba PEC REST API.",
+      "defaultValue": "https://api.pec.aruba.it/v1"
+    },
+    {
+      "name": "aruba.oauth2.connect-timeout-ms",
+      "type": "java.lang.Long",
+      "description": "Connection timeout in milliseconds for HTTP requests to the Aruba PEC API.",
+      "defaultValue": 5000
+    },
+    {
+      "name": "aruba.oauth2.read-timeout-ms",
+      "type": "java.lang.Long",
+      "description": "Read timeout in milliseconds for HTTP requests to the Aruba PEC API.",
+      "defaultValue": 30000
+    }
+  ]
+}
