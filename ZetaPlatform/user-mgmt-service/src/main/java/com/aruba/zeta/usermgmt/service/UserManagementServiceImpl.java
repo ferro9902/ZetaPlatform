@@ -84,7 +84,12 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
                             if (!request.getRole().isEmpty()) {
                                 user.setRole(request.getRole());
                             }
-                            user.setSemanticIndexingEnabled(request.getSemanticIndexingEnabled());
+                            if (request.hasIsActive()) {
+                                user.setActive(request.getIsActive().getValue());
+                            }
+                            if (request.hasSemanticIndexingEnabled()) {
+                                user.setSemanticIndexingEnabled(request.getSemanticIndexingEnabled().getValue());
+                            }
 
                             UserEntity savedEntity = userRepository.save(user);
                             UserResponse response = UserResponse.newBuilder()

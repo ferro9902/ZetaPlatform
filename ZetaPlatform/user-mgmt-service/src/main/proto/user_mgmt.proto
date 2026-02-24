@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package it.aruba.zeta.user;
 
+import "google/protobuf/wrappers.proto";
+
 option java_multiple_files = true;
 option java_package = "it.aruba.zeta.user.grpc";
 option java_outer_classname = "UserProvisioningProto";
@@ -49,9 +51,9 @@ message UpdateUserRequest {
   string email = 2;
   string first_name = 3;
   string last_name = 4;
-  bool is_active = 5;
+  google.protobuf.BoolValue is_active = 5;
   string username = 6;
-  bool semantic_indexing_enabled = 7;
+  google.protobuf.BoolValue semantic_indexing_enabled = 7;
   string role = 8;
 }
 

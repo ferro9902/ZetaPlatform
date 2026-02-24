@@ -1,0 +1,54 @@
+
+…
+user_mgmt.protoit.aruba.zeta.usergoogle/protobuf/wrappers.proto"¯
+User
+id (	Rid
+email (	Remail
+
+first_name (	R	firstName
+	last_name (	RlastName
+	is_active (RisActive
+
+created_at (	R	createdAt
+username (	Rusername:
+semantic_indexing_enabled (RsemanticIndexingEnabled
+
+updated_at	 (	R	updatedAt
+role
+ (	Rrole"Ñ
+CreateUserRequest
+email (	Remail
+
+first_name (	R	firstName
+	last_name (	RlastName
+username (	Rusername:
+semantic_indexing_enabled (RsemanticIndexingEnabled
+role (	Rrole" 
+GetUserRequest
+id (	Rid"¶
+UpdateUserRequest
+id (	Rid
+email (	Remail
+
+first_name (	R	firstName
+	last_name (	RlastName7
+	is_active (2.google.protobuf.BoolValueRisActive
+username (	RusernameV
+semantic_indexing_enabled (2.google.protobuf.BoolValueRsemanticIndexingEnabled
+role (	Rrole"<
+UserResponse,
+user (2.it.aruba.zeta.user.UserRuser"#
+DeleteUserRequest
+id (	Rid"H
+DeleteUserResponse
+success (Rsuccess
+message (	Rmessage2ó
+UserManagementServiceU
+
+CreateUser%.it.aruba.zeta.user.CreateUserRequest .it.aruba.zeta.user.UserResponseO
+GetUser".it.aruba.zeta.user.GetUserRequest .it.aruba.zeta.user.UserResponseU
+
+UpdateUser%.it.aruba.zeta.user.UpdateUserRequest .it.aruba.zeta.user.UserResponse[
+
+DeleteUser%.it.aruba.zeta.user.DeleteUserRequest&.it.aruba.zeta.user.DeleteUserResponseB2
+it.aruba.zeta.user.grpcBUserProvisioningProtoPbproto3

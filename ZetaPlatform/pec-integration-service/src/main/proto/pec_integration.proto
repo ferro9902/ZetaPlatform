@@ -14,6 +14,7 @@ service PecIntegrationService {
   rpc GetMailboxes (GetMailboxesRequest) returns (GetMailboxesResponse);
   rpc GetMessages (GetMessagesRequest) returns (GetMessagesResponse);
   rpc SendMessage (SendMessageRequest) returns (SendMessageResponse);
+  rpc LinkPecAccount (LinkPecAccountRequest) returns (LinkPecAccountResponse);
 }
 
 // Enumerations
@@ -72,13 +73,14 @@ message GetMailboxesResponse {
 }
 
 message GetMessagesRequest {
-  string mailbox_id = 1;
-  int32 page_size = 2;
-  string page_token = 3;
-  
+  string user_id = 1;
+  string mailbox_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+
   // Optional filters
-  google.protobuf.Timestamp start_date = 4;
-  google.protobuf.Timestamp end_date = 5;
+  google.protobuf.Timestamp start_date = 5;
+  google.protobuf.Timestamp end_date = 6;
 }
 
 message GetMessagesResponse {
@@ -87,14 +89,24 @@ message GetMessagesResponse {
 }
 
 message SendMessageRequest {
-  string mailbox_id = 1;
-  string recipient_address = 2;
-  string subject = 3;
-  string body_text = 4;
-  repeated string document_ids = 5;
+  string user_id = 1;
+  string mailbox_id = 2;
+  string recipient_address = 3;
+  string subject = 4;
+  string body_text = 5;
+  repeated string document_ids = 6;
 }
 
 message SendMessageResponse {
   string message_id = 1;
   MessageStatus current_status = 2;
+}
+
+message LinkPecAccountRequest {
+  string user_id = 1;
+  string auth_code = 2;
+}
+
+message LinkPecAccountResponse {
+  bool success = 1;
 }

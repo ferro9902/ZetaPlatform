@@ -1,15 +1,16 @@
 package com.aruba.zeta.pecintegration.client.rest;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.aruba.zeta.pecintegration.dto.ArubaMailboxDto;
-import com.aruba.zeta.pecintegration.dto.ArubaMessageDto;
 import com.aruba.zeta.pecintegration.dto.ArubaMessagePage;
 import com.aruba.zeta.pecintegration.dto.ArubaSendMessageRequest;
 import com.aruba.zeta.pecintegration.dto.ArubaSendMessageResponse;
@@ -48,39 +49,26 @@ public class ArubaPecApiClient {
     // Message operations
 
     /**
-     * Retrieves a paginated list of messages for a mailbox.
+     * Retrieves messages for a mailbox, optionally filtered by date range.
      *
      * @param accessToken OAuth2 access token
      * @param mailboxId   mailbox identifier
-     * @param page        page index (0-based)
-     * @param size        page size
+     * @param startDate   optional lower bound filter (inclusive)
+     * @param endDate     optional upper bound filter (inclusive)
      * @return page of messages
      */
-    public ArubaMessagePage getMessages(String accessToken, String mailboxId, int page, int size) {
-        log.debug("Fetching messages for mailbox {} (page={}, size={})", mailboxId, page, size);
+    public ArubaMessagePage getMessages(String accessToken, String mailboxId, @Nullable Instant startDate, @Nullable Instant endDate) {
+        log.debug("Fetching messages for mailbox {} (startDate={}, endDate={})", mailboxId, startDate, endDate);
         return restClient.get()
-                .uri("/mailboxes/{mailboxId}/messages?page={page}&size={size}",
-                        mailboxId, page, size)
+                .uri(uriBuilder -> {
+                    uriBuilder.path("/mailboxes/{mailboxId}/messages");
+                    if (startDate != null) uriBuilder.queryParam("startDate", startDate);
+                    if (endDate != null)   uriBuilder.queryParam("endDate", endDate);
+                    return uriBuilder.build(mailboxId);
+                })
                 .header(HttpHeaders.AUTHORIZATION, bearer(accessToken))
                 .retrieve()
                 .body(ArubaMessagePage.class);
-    }
-
-    /**
-     * Retrieves a single message by ID.
-     *
-     * @param accessToken OAuth2 access token
-     * @param mailboxId   mailbox identifier
-     * @param messageId   message identifier
-     * @return message details
-     */
-    public ArubaMessageDto getMessage(String accessToken, String mailboxId, String messageId) {
-        log.debug("Fetching message {} from mailbox {}", messageId, mailboxId);
-        return restClient.get()
-                .uri("/mailboxes/{mailboxId}/messages/{messageId}", mailboxId, messageId)
-                .header(HttpHeaders.AUTHORIZATION, bearer(accessToken))
-                .retrieve()
-                .body(ArubaMessageDto.class);
     }
 
     /**
@@ -91,10 +79,7 @@ public class ArubaPecApiClient {
      * @param request     message payload
      * @return submission acknowledgement
      */
-    public ArubaSendMessageResponse sendMessage(
-            String accessToken,
-            String mailboxId,
-            ArubaSendMessageRequest request) {
+    public ArubaSendMessageResponse sendMessage(String accessToken, String mailboxId, ArubaSendMessageRequest request) {
         log.debug("Sending PEC message from mailbox {} to {}", mailboxId, request.getTo());
         return restClient.post()
                 .uri("/mailboxes/{mailboxId}/messages", mailboxId)
