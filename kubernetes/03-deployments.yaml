@@ -10,8 +10,10 @@
 
 # -----------------------------------------------------------------------------
 # user-mgmt-service
-# gRPC server on 9090 | HTTP actuator on 8080 | PostgreSQL: user_mgmt_db
+# gRPC server on 9090 | PostgreSQL: user_mgmt_db
 # No outbound gRPC calls; standalone data service.
+# Probes use the standard gRPC health protocol (grpc.health.v1.Health),
+# registered automatically by the Spring gRPC starter.
 # -----------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
@@ -35,8 +37,6 @@ spec:
           ports:
             - containerPort: 9090
               name: grpc
-            - containerPort: 8080
-              name: http
           envFrom:
             - configMapRef:
                 name: zeta-config
@@ -54,17 +54,15 @@ spec:
               cpu: 500m
               memory: 512Mi
           readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: 8080
-            initialDelaySeconds: 30
+            grpc:
+              port: 9090
+            initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 5
           livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 60
+            grpc:
+              port: 9090
+            initialDelaySeconds: 40
             periodSeconds: 15
             failureThreshold: 3
 
@@ -81,15 +79,14 @@ spec:
     - port: 9090
       targetPort: 9090
       name: grpc
-    - port: 8080
-      targetPort: 8080
-      name: http
 
 ---
 # -----------------------------------------------------------------------------
 # user-auth-service
-# gRPC server on 9090 | HTTP actuator on 8080 | PostgreSQL: user_auth_db
+# gRPC server on 9090 | PostgreSQL: user_auth_db
 # Outbound gRPC client → user-mgmt-service:9090
+# Probes use the standard gRPC health protocol (grpc.health.v1.Health),
+# registered automatically by the Spring gRPC starter.
 # -----------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
@@ -113,8 +110,6 @@ spec:
           ports:
             - containerPort: 9090
               name: grpc
-            - containerPort: 8080
-              name: http
           envFrom:
             - configMapRef:
                 name: zeta-config
@@ -132,17 +127,15 @@ spec:
               cpu: 500m
               memory: 512Mi
           readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: 8080
-            initialDelaySeconds: 30
+            grpc:
+              port: 9090
+            initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 5
           livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 60
+            grpc:
+              port: 9090
+            initialDelaySeconds: 40
             periodSeconds: 15
             failureThreshold: 3
 
@@ -159,9 +152,6 @@ spec:
     - port: 9090
       targetPort: 9090
       name: grpc
-    - port: 8080
-      targetPort: 8080
-      name: http
 
 ---
 # -----------------------------------------------------------------------------
