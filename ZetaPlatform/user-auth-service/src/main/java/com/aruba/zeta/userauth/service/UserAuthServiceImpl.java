@@ -23,6 +23,10 @@ import org.springframework.grpc.server.service.GrpcService;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * gRPC service implementation for user authentication operations.
+ * Handles login, token validation, user registration, and user deletion.
+ */
 @Slf4j
 @GrpcService
 @RequiredArgsConstructor

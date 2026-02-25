@@ -17,6 +17,10 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * gRPC service implementation for managing encrypted OAuth2 integration tokens.
+ * Handles secure persistence and retrieval of third-party service token pairs.
+ */
 @Slf4j
 @GrpcService
 @RequiredArgsConstructor

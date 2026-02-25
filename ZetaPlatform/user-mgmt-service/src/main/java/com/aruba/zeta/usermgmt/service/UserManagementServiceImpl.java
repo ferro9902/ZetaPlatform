@@ -10,6 +10,7 @@ import it.aruba.zeta.user.grpc.User;
 import it.aruba.zeta.user.grpc.UserManagementServiceGrpc.UserManagementServiceImplBase;
 import it.aruba.zeta.user.grpc.UserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.aruba.zeta.usermgmt.entity.UserEntity;
 import com.aruba.zeta.usermgmt.repository.UserRepo;
@@ -19,6 +20,11 @@ import java.util.UUID;
 
 import org.springframework.grpc.server.service.GrpcService;
 
+/**
+ * gRPC service implementation for user management operations.
+ * Handles creation, retrieval, update, and deletion of user profiles.
+ */
+@Slf4j
 @GrpcService
 @RequiredArgsConstructor
 public class UserManagementServiceImpl extends UserManagementServiceImplBase {
@@ -37,6 +43,7 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
             entity.setRole(request.getRole());
         }
 
+        log.debug("Creating user with username: {}", request.getUsername());
         UserEntity savedEntity = userRepository.save(entity);
 
         UserResponse response = UserResponse.newBuilder()
@@ -45,10 +52,12 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+        log.info("User {} created successfully with id {}", savedEntity.getUsername(), savedEntity.getId());
     }
 
     @Override
     public void getUser(GetUserRequest request, StreamObserver<UserResponse> responseObserver) {
+        log.debug("Retrieving user with id: {}", request.getId());
         userRepository.findById(UUID.fromString(request.getId()))
                 .ifPresentOrElse(
                         user -> {
@@ -58,14 +67,18 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
                             responseObserver.onNext(response);
                             responseObserver.onCompleted();
                         },
-                        () -> responseObserver.onError(io.grpc.Status.NOT_FOUND
-                                .withDescription("User not found")
-                                .asRuntimeException())
+                        () -> {
+                            log.warn("Get failed: user {} not found", request.getId());
+                            responseObserver.onError(io.grpc.Status.NOT_FOUND
+                                    .withDescription("User not found")
+                                    .asRuntimeException());
+                        }
                 );
     }
 
     @Override
     public void updateUser(UpdateUserRequest request, StreamObserver<UserResponse> responseObserver) {
+        log.debug("Updating user with id: {}", request.getId());
         userRepository.findById(UUID.fromString(request.getId()))
                 .ifPresentOrElse(
                         user -> {
@@ -97,15 +110,20 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
                                     .build();
                             responseObserver.onNext(response);
                             responseObserver.onCompleted();
+                            log.info("User {} updated successfully", savedEntity.getId());
                         },
-                        () -> responseObserver.onError(io.grpc.Status.NOT_FOUND
-                                .withDescription("User not found")
-                                .asRuntimeException())
+                        () -> {
+                            log.warn("Update failed: user {} not found", request.getId());
+                            responseObserver.onError(io.grpc.Status.NOT_FOUND
+                                    .withDescription("User not found")
+                                    .asRuntimeException());
+                        }
                 );
     }
 
     @Override
     public void deleteUser(DeleteUserRequest request, StreamObserver<DeleteUserResponse> responseObserver) {
+        log.debug("Deleting user with id: {}", request.getId());
         UUID id = UUID.fromString(request.getId());
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
@@ -115,13 +133,21 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
                     .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+            log.info("User {} deleted successfully", id);
         } else {
+            log.warn("Delete failed: user {} not found", id);
             responseObserver.onError(io.grpc.Status.NOT_FOUND
                     .withDescription("User not found")
                     .asRuntimeException());
         }
     }
 
+    /**
+     * Maps a {@link UserEntity} to the gRPC {@link User} proto message.
+     *
+     * @param entity the JPA entity to convert
+     * @return the corresponding gRPC {@code User} proto message
+     */
     private User mapToGrpcUser(UserEntity entity) {
         return User.newBuilder()
                 .setId(entity.getId().toString())
