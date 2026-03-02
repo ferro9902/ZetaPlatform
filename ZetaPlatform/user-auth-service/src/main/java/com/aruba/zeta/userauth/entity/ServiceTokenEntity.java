@@ -3,8 +3,10 @@ package com.aruba.zeta.userauth.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,7 +20,8 @@ import java.util.UUID;
  * JPA entity representing an encrypted OAuth2 token pair for a third-party integration,
  * stored in the {@code service_tokens} table.
  */
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor
