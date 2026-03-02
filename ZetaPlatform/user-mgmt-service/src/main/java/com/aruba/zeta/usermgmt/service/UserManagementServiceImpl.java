@@ -8,6 +8,7 @@ import it.aruba.zeta.user.grpc.GetUserRequest;
 import it.aruba.zeta.user.grpc.UpdateUserRequest;
 import it.aruba.zeta.user.grpc.User;
 import it.aruba.zeta.user.grpc.UserManagementServiceGrpc.UserManagementServiceImplBase;
+import jakarta.transaction.Transactional;
 import it.aruba.zeta.user.grpc.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,7 @@ public class UserManagementServiceImpl extends UserManagementServiceImplBase {
     }
 
     @Override
+    @Transactional
     public void updateUser(UpdateUserRequest request, StreamObserver<UserResponse> responseObserver) {
         log.debug("Updating user with id: {}", request.getId());
         userRepository.findById(UUID.fromString(request.getId()))

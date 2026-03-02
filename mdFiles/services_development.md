@@ -83,9 +83,9 @@ Manages platform login, internal token lifecycle, and user registration/deletion
 ##### Deletion Flow (`DeleteUser` RPC)
 
 1. Confirms the user exists in the `auth_users` table.
-2. Cascades deletion of all stored service tokens (`service_tokens` table) for that `userId`.
-3. Deletes the `AuthUserEntity` from `auth_users`.
-4. Calls `user-mgmt-service` via `UserMgmtClient.deleteUser()` to remove the canonical user profile.
+2. Calls `user-mgmt-service` via `UserMgmtClient.deleteUser()` to remove the canonical user profile.
+3. Cascades deletion of all stored service tokens (`service_tokens` table) for that `userId`.
+4. Deletes the `AuthUserEntity` from `auth_users`.
 5. Returns `success = true`. If the user-mgmt-service call fails after credentials are already deleted, an error is returned indicating partial failure.
 
 ##### JWT Configuration

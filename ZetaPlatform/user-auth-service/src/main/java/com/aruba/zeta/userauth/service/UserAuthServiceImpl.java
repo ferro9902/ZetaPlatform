@@ -15,6 +15,7 @@ import com.aruba.zeta.userauth.grpc.ValidateTokenRequest;
 import com.aruba.zeta.userauth.grpc.ValidateTokenResponse;
 import io.grpc.stub.StreamObserver;
 import it.aruba.zeta.user.grpc.UserResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -147,6 +148,7 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
     }
 
     @Override
+    @Transactional
     public void registerUser(RegisterUserRequest request, StreamObserver<RegisterUserResponse> responseObserver) {
         String username = request.getUsername();
 
@@ -202,6 +204,7 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
     }
 
     @Override
+    @Transactional
     public void deleteUser(DeleteUserRequest request, StreamObserver<DeleteUserResponse> responseObserver) {
         String userIdStr = request.getUserId();
 
@@ -209,6 +212,14 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
 
         try {
             UUID userId = UUID.fromString(userIdStr);
+
+            try {
+                userMgmtClient.deleteUser(userIdStr);
+            } catch (Exception e) {
+                log.error("Delete: auth credentials removed but UserMgmtService deletion failed for user {}", userIdStr, e);
+                sendDeleteError(responseObserver, "Credentials deleted but user profile removal failed");
+                return;
+            }
 
             if (authUserRepo.findByUserId(userId).isEmpty()) {
                 log.warn("Delete failed: user {} not found in AuthRepo", userIdStr);
@@ -218,14 +229,6 @@ public class UserAuthServiceImpl extends UserAuthServiceGrpc.UserAuthServiceImpl
 
             serviceTokenRepo.deleteAllByUserId(userId);
             authUserRepo.deleteById(authUserRepo.findByUserId(userId).get().getId());
-
-            try {
-                userMgmtClient.deleteUser(userIdStr);
-            } catch (Exception e) {
-                log.error("Delete: auth credentials removed but UserMgmtService deletion failed for user {}", userIdStr, e);
-                sendDeleteError(responseObserver, "Credentials deleted but user profile removal failed");
-                return;
-            }
 
             DeleteUserResponse response = DeleteUserResponse.newBuilder()
                     .setSuccess(true)
