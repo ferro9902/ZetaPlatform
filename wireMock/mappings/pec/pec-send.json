@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPathPattern": "/mailboxes/[^/]+/messages",
+    "urlPathPattern": "/v1/mailboxes/[^/]+/messages",
     "headers": {
       "Authorization": {
         "matches": "Bearer .+"
@@ -16,7 +16,7 @@
       { "matchesJsonPath": "$.body" }
     ]
   },
-  "response": {
+"response": {
     "status": 200,
     "headers": {
       "Content-Type": "application/json"
@@ -24,7 +24,7 @@
     "jsonBody": {
       "message_id": "mocked-aruba-msg-id-9876",
       "status": "ACCEPTED",
-      "accepted_at": "{{now format='yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\''}}"
+      "accepted_at": "{{now}}"
     },
     "transformers": ["response-template"]
   }
